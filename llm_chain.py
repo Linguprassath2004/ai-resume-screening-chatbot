@@ -5,9 +5,9 @@ from langchain_core.output_parsers import StrOutputParser
 def create_qa_chain(vector_store):
 
     llm = ChatGroq(
-        model="llama3-8b-8192",
-        temperature=0
-    )
+    model="llama-3.1-8b-instant",
+    temperature=0
+)
 
     retriever = vector_store.as_retriever()
 
