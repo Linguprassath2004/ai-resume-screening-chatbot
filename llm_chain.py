@@ -1,7 +1,7 @@
 # llm_chain.py
 import os
 import requests
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts import PromptTemplate
 
 # Use environment variable for your GROQ API key
 GROQ_API_URL = "https://api.groq.ai/v1/query"
