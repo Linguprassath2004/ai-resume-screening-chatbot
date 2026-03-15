@@ -1,42 +1,49 @@
-# app.py
-import streamlit as st
-from llm_chain import create_qa_chain
-from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.vectorstores import Chroma
-from langchain.document_loaders import PyPDFLoader
+# llm_chain.py
 
-st.set_page_config(page_title="🤖 AI Resume Screening Chatbot", layout="wide")
-st.title("🤖 AI Resume Screening Chatbot (RAG + LLaMA 3)")
+# Import only necessary modules
+from langchain_ollama import ChatOllama
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
 
-uploaded_file = st.file_uploader(
-    "Upload Resume (PDF)", type=["pdf"], help="Limit 200MB per file"
-)
+def create_qa_chain(vector_store):
+    """
+    Create a question-answering chain using LangChain and Ollama LLM.
 
-if uploaded_file is not None:
-    # Load PDF
-    loader = PyPDFLoader(uploaded_file)
-    documents = loader.load()
+    Args:
+        vector_store: A retriever-compatible vector store instance (e.g., Chroma, FAISS).
 
-    # Split text into chunks
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50,
-    )
-    docs = text_splitter.split_documents(documents)
+    Returns:
+        A QA chain object that can be called to ask questions.
+    """
 
-    # Create vector store in-memory
-    vector_store = Chroma.from_documents(docs, collection_name="resume_collection")
+    # Initialize the LLM
+    llm = ChatOllama(model="llama3")  # Use your model here
 
-    st.success("✅ Resume uploaded and indexed successfully!")
+    # Prepare retriever from the vector store
+    retriever = vector_store.as_retriever()
 
-    # Create QA chain
-    qa_chain = create_qa_chain(vector_store)
+    # Define a prompt template
+    prompt = ChatPromptTemplate.from_template("""
+You are an AI assistant designed to answer questions based on the user's uploaded resumes.
 
-    # Ask questions
-    st.subheader("Ask a question about the resume")
-    query = st.text_input("Type your question here:")
+Instructions:
+- Answer concisely and accurately.
+- If unsure, say 'I don't know'.
+- Only use information from the retrieved documents.
 
-    if query:
-        with st.spinner("🤖 AI is generating answer..."):
-            answer = qa_chain(query)
-            st.markdown(f"**Answer:** {answer}")
+Question: {question}
+Answer:
+""")
+
+    # Optional: define output parser (can customize if needed)
+    output_parser = StrOutputParser()
+
+    # Return a dictionary with all chain components for usage
+    qa_chain = {
+        "llm": llm,
+        "retriever": retriever,
+        "prompt": prompt,
+        "output_parser": output_parser
+    }
+
+    return qa_chain
