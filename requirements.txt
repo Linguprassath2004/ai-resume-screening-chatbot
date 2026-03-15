@@ -1,5 +1,22 @@
+# Streamlit for the web app
 streamlit==1.24.0
-langchain>=1.2.10
-pinecone-client>=2.2.2        # if using Pinecone as your vector DB
+
+# LangChain pinned to a version compatible with ChatPromptTemplate
+langchain==1.2.10
+
+# Requests for HTTP calls to GROQ API
+requests>=2.31.0
+
+# Optional: For loading environment variables (API keys)
 python-dotenv>=1.2.1
-requests>=2.31.0              # GROQ API calls
+
+# Vector database / embeddings support (e.g., FAISS)
+faiss-cpu>=1.7.4.post2
+numpy>=1.25.0
+
+# Optional: For PDF / document parsing if needed
+PyMuPDF>=1.22.5
+pdfplumber>=0.10.0
+
+# Utilities
+pandas>=2.1.0
