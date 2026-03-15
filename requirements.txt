@@ -1,18 +1,17 @@
 # Web framework
-streamlit==1.24.0
+streamlit==1.32.0
 
-# LangChain v1.x compatible with PromptTemplate
-langchain==1.2.10
+# LangChain - Using stable 0.1.x versions
+langchain>=0.1.0
+langchain-community>=0.0.10
 
 # HTTP requests to GROQ API
 requests>=2.31.0
 
 # Environment variables
-python-dotenv>=1.2.1
+python-dotenv>=1.0.0
 
-# Vector DB / embeddings (example with FAISS)
-faiss-cpu>=1.7.4.post2
-numpy>=1.25.0
-
-# Utilities for data handling
+# Vector DB / utilities
+faiss-cpu>=1.7.4
+numpy>=1.24.0
 pandas>=2.1.0
