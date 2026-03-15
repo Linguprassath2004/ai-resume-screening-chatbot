@@ -1,12 +1,11 @@
 # llm_chain.py
 import os
 import requests
-from langchain.prompts.chat import ChatPromptTemplate
 from langchain.prompts import ChatPromptTemplate
 from langchain.output_parsers import StrOutputParser
 
 GROQ_API_URL = "https://api.groq.ai/v1/query"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # set in Streamlit secrets
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # set this in Streamlit secrets
 
 def create_qa_chain(vector_store):
     retriever = vector_store.as_retriever()
@@ -19,12 +18,15 @@ def create_qa_chain(vector_store):
     output_parser = StrOutputParser()
 
     def llm_call(question, context_docs):
+        # Convert retrieved docs to plain text
+        context_text = "\n".join([doc.page_content for doc in context_docs])
+
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
         }
         data = {
-            "query": f"{prompt_template.format(question=question)}\nContext: {context_docs}"
+            "query": f"{prompt_template.format(question=question)}\nContext:\n{context_text}"
         }
 
         response = requests.post(GROQ_API_URL, json=data, headers=headers)
