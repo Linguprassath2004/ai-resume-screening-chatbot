@@ -1,31 +1,23 @@
 # llm_chain.py
 import os
 import requests
-from langchain.prompts import ChatPromptTemplate
+from langchain.prompts.chat import ChatPromptTemplate
 from langchain.output_parsers import StrOutputParser
 
-GROQ_API_URL = "https://api.groq.ai/v1/query"  # replace with actual endpoint
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")      # set in Streamlit Secrets
+GROQ_API_URL = "https://api.groq.ai/v1/query"
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # set in Streamlit secrets
 
 def create_qa_chain(vector_store):
-    """
-    Simple QA chain using GROQ API and a vector store
-    """
     retriever = vector_store.as_retriever()
 
-    prompt_template = """
-You are an AI assistant. Answer the user's question based only on the retrieved documents.
-
-Question: {question}
-Answer:
-"""
+    prompt_template = ChatPromptTemplate.from_template(
+        "You are an AI assistant. Answer the user's question based only on the retrieved documents.\n\n"
+        "Question: {question}\nAnswer:"
+    )
 
     output_parser = StrOutputParser()
 
     def llm_call(question, context_docs):
-        """
-        Send query to GROQ API with context documents.
-        """
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
