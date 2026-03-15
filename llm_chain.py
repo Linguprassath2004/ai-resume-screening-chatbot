@@ -1,30 +1,31 @@
 # llm_chain.py
 import os
 import requests
-from langchain.prompts import PromptTemplate
+from langchain.prompts.prompt import PromptTemplate  # safe import
+from vector_store import MyVectorStore  # your vector store wrapper
 
-# Use environment variable for your GROQ API key
+# GROQ API
 GROQ_API_URL = "https://api.groq.ai/v1/query"
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # set this in Streamlit secrets
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")  # store in Streamlit secrets
 
-# Custom simple string parser (replaces StrOutputParser)
 class SimpleStrOutputParser:
     def parse(self, text: str) -> str:
         return text.strip()
 
-def create_qa_chain(vector_store):
+def create_qa_chain(vector_store: MyVectorStore):
     retriever = vector_store.as_retriever()
 
-    # Prompt template
-    prompt_template = ChatPromptTemplate.from_template(
-        "You are an AI assistant. Answer the user's question based only on the retrieved documents.\n\n"
-        "Question: {question}\nAnswer:"
+    prompt_template = PromptTemplate(
+        input_variables=["question"],
+        template=(
+            "You are an AI assistant. Answer the user's question based only on the retrieved documents.\n\n"
+            "Question: {question}\nAnswer:"
+        )
     )
 
     output_parser = SimpleStrOutputParser()
 
-    # LLM call using GROQ API
-    def llm_call(question, context_docs):
+    def llm_call(question: str, context_docs: str) -> str:
         headers = {
             "Authorization": f"Bearer {GROQ_API_KEY}",
             "Content-Type": "application/json"
@@ -34,7 +35,6 @@ def create_qa_chain(vector_store):
         }
         response = requests.post(GROQ_API_URL, json=data, headers=headers)
         response.raise_for_status()
-        # GROQ returns answer in JSON key "answer" (adjust if your API is different)
         return response.json().get("answer", "")
 
     return {
