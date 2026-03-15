@@ -1,15 +1,12 @@
 # app.py
 import streamlit as st
-from langchain_groq import ChatGroq
-from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.output_parsers import StrOutputParser
-from langchain_core.text_splitter import RecursiveCharacterTextSplitter
-from langchain_core.vectorstores import Chroma
-from langchain_core.document_loaders import PyPDFLoader
-import os
+from llm_chain import create_qa_chain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
+from langchain.document_loaders import PyPDFLoader
 
 # -----------------------
-# Streamlit App Layout
+# Streamlit Page Setup
 # -----------------------
 st.set_page_config(page_title="🤖 AI Resume Screening Chatbot", layout="wide")
 st.title("🤖 AI Resume Screening Chatbot (RAG + LLaMA 3)")
@@ -33,7 +30,7 @@ if uploaded_file is not None:
     )
     docs = text_splitter.split_documents(documents)
 
-    # Create Chroma Vector Store
+    # Create Chroma Vector Store (in-memory)
     vector_store = Chroma.from_documents(docs, collection_name="resume_collection")
 
     st.success("✅ Resume uploaded and indexed successfully!")
@@ -41,38 +38,6 @@ if uploaded_file is not None:
     # -----------------------
     # Create QA Chain
     # -----------------------
-    def create_qa_chain(vector_store):
-        llm = ChatGroq(
-            model="llama-3.1-8b-instant",
-            temperature=0
-        )
-
-        retriever = vector_store.as_retriever()
-
-        prompt = ChatPromptTemplate.from_template("""
-You are an AI assistant that answers questions about a candidate's resume. 
-Use ONLY the information from the resume provided.
-
-Resume Content:
-{context}
-
-Question:
-{question}
-
-Answer the question clearly and concisely based on the resume.
-        """)
-
-        def format_docs(docs):
-            return "\n\n".join(doc.page_content for doc in docs)
-
-        # Return callable function
-        def run_chain(query):
-            docs = retriever.get_relevant_documents(query)
-            context = format_docs(docs)
-            return llm.invoke({"context": context, "question": query})
-
-        return run_chain
-
     qa_chain = create_qa_chain(vector_store)
 
     # -----------------------
