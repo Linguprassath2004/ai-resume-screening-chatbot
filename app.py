@@ -1,36 +1,53 @@
+# app.py
 import streamlit as st
-from pdf_loader import extract_text_from_pdf
-from vector_store import create_vector_store
 from llm_chain import create_qa_chain
+from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain.vectorstores import Chroma
+from langchain.document_loaders import PyPDFLoader
+import os
 
-st.set_page_config(page_title="AI Resume Screening Chatbot", page_icon="🤖", layout="wide")
-
+# -----------------------
+# Streamlit Page Setup
+# -----------------------
+st.set_page_config(page_title="🤖 AI Resume Screening Chatbot", layout="wide")
 st.title("🤖 AI Resume Screening Chatbot (RAG + LLaMA 3)")
 
-col1, col2 = st.columns(2)
+uploaded_file = st.file_uploader(
+    "Upload Resume (PDF)", type=["pdf"], help="Limit 200MB per file"
+)
 
-with col1:
-    resume_file = st.file_uploader("Upload Resume (PDF)", type="pdf")
+# -----------------------
+# Process Resume
+# -----------------------
+if uploaded_file is not None:
+    # Load PDF
+    loader = PyPDFLoader(uploaded_file)
+    documents = loader.load()
 
-with col2:
-    job_description = st.text_area("Paste Job Description")
+    # Split text into chunks for vector store
+    text_splitter = RecursiveCharacterTextSplitter(
+        chunk_size=500,
+        chunk_overlap=50,
+    )
+    docs = text_splitter.split_documents(documents)
 
-if resume_file and job_description:
+    # Create Chroma Vector Store (in-memory)
+    vector_store = Chroma.from_documents(docs, collection_name="resume_collection")
 
-    with st.spinner("Processing..."):
-        resume_text = extract_text_from_pdf(resume_file)
+    st.success("✅ Resume uploaded and indexed successfully!")
 
-        vector_store = create_vector_store(resume_text)
-        qa_chain = create_qa_chain(vector_store)
+    # -----------------------
+    # Create QA Chain
+    # -----------------------
+    qa_chain = create_qa_chain(vector_store)
 
-        query = f"""
-        Compare the resume with the following job description.
+    # -----------------------
+    # Ask Questions
+    # -----------------------
+    st.subheader("Ask a question about the resume")
+    query = st.text_input("Type your question here:")
 
-        Job Description:
-        {job_description}
-        """
-
-        result = qa_chain.invoke(query)
-
-    st.subheader("AI Evaluation")
-    st.write(result)
+    if query:
+        with st.spinner("🤖 AI is generating answer..."):
+            answer = qa_chain(query)
+            st.markdown(f"**Answer:** {answer}")
