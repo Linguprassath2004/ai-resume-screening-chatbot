@@ -1,8 +1,8 @@
 # llm_chain.py
 import os
 import requests
-from langchain.prompts.chat import ChatPromptTemplate
 from langchain.output_parsers import StrOutputParser
+from langchain.prompts import ChatPromptTemplate
 
 # GROQ API
 GROQ_API_URL = "https://api.groq.ai/v1/query"
