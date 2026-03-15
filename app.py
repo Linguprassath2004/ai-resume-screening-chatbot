@@ -1,18 +1,12 @@
 # app.py
 import streamlit as st
 from llm_chain import create_qa_chain
+from some_vector_store_module import MyVectorStore  # replace with your actual vector store class
 
-# Placeholder vector store (replace with your actual implementation, e.g., FAISS)
-class MyVectorStore:
-    def as_retriever(self):
-        return self
-
-    def get_relevant_documents(self, question):
-        # Mock data, replace with your retrieval logic
-        return ["Resume 1 text...", "Resume 2 text..."]
-
-# Initialize vector store and QA chain
+# Initialize vector store
 vector_store = MyVectorStore()
+
+# Create the QA chain
 qa_chain = create_qa_chain(vector_store)
 
 st.title("AI Resume Screening Chatbot")
@@ -23,10 +17,9 @@ if question:
     # Retrieve relevant documents
     docs = qa_chain["retriever"].get_relevant_documents(question)
     
-    # Call GROQ LLM
-    answer = qa_chain["llm_call"](question, docs)
+    # Generate response from LLM
+    raw_answer = qa_chain["llm_call"](question, context_docs=docs)
     
-    # Optional: parse the output
-    final_answer = qa_chain["output_parser"].parse(answer)
-
+    # Parse and display output
+    final_answer = qa_chain["output_parser"].parse(raw_answer)
     st.write(final_answer)
