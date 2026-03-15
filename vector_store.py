@@ -1,20 +1,10 @@
-from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import HuggingFaceEmbeddings
-from langchain_text_splitters import RecursiveCharacterTextSplitter
+# vector_store.py
+class MyVectorStore:
+    """Dummy vector store for demonstration. Replace with FAISS, Pinecone, etc."""
 
-def create_vector_store(text):
+    def as_retriever(self):
+        return self
 
-    splitter = RecursiveCharacterTextSplitter(
-        chunk_size=500,
-        chunk_overlap=50
-    )
-
-    chunks = splitter.split_text(text)
-
-    embeddings = HuggingFaceEmbeddings(
-        model_name="sentence-transformers/all-MiniLM-L6-v2"
-    )
-
-    vector_store = FAISS.from_texts(chunks, embeddings)
-
-    return vector_store
+    def get_relevant_documents(self, question: str):
+        # In real use, return the top documents related to the question
+        return ["Document 1: Example content.", "Document 2: More example content."]
