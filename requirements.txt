@@ -1,17 +1,18 @@
 # Web framework
 streamlit==1.32.0
 
-# LangChain - Using stable 0.1.x versions
-langchain>=0.1.0
-langchain-community>=0.0.10
+# LangChain - Current 1.x stable releases
+langchain>=1.2.0
+langchain-core>=1.2.0
+langchain-community>=0.3.0
 
-# HTTP requests to GROQ API
+# PDF Processing
+pypdf>=5.0.0
+
+# API & Environment
 requests>=2.31.0
-
-# Environment variables
 python-dotenv>=1.0.0
 
-# Vector DB / utilities
-faiss-cpu>=1.7.4
+# Data & Math
 numpy>=1.24.0
 pandas>=2.1.0
