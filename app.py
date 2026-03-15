@@ -3,24 +3,34 @@ import streamlit as st
 from llm_chain import create_qa_chain
 from vector_store import MyVectorStore
 
-# Initialize vector store
-vector_store = MyVectorStore()
+st.set_page_config(page_title="Resume Screener", page_icon="📄")
+st.title("📄 AI Resume Screening Chatbot")
 
-# Create QA chain
-qa_chain = create_qa_chain(vector_store)
+# 1. Initialize Vector Store & Chain
+@st.cache_resource
+def init_chain():
+    vs = MyVectorStore()
+    return create_qa_chain(vs)
 
-st.title("AI Resume Screening Chatbot")
+qa_chain = init_chain()
 
-question = st.text_input("Ask a question about the resumes:")
+# 2. UI for User Input
+question = st.text_input("Ask about candidate skills or experience:", placeholder="e.g., Who has experience with Python and AWS?")
 
 if question:
-    # Retrieve relevant documents
-    docs = qa_chain["retriever"].get_relevant_documents(question)
-    context = "\n".join(docs)
-
-    # Generate response using GROQ API
-    response = qa_chain["llm_call"](question, context)
-
-    # Parse and display
-    final_answer = qa_chain["output_parser"].parse(response)
-    st.write(final_answer)
+    with st.spinner("Analyzing resumes..."):
+        # Retrieve relevant documents
+        docs = qa_chain["retriever"].get_relevant_documents(question)
+        
+        # Generate response
+        raw_response = qa_chain["llm_call"](question, docs)
+        
+        # Parse and display
+        final_answer = qa_chain["output_parser"].parse(raw_response)
+        
+        st.markdown("### Answer")
+        st.write(final_answer)
+        
+        with st.expander("View Source Documents"):
+            for i, doc in enumerate(docs):
+                st.info(f"Source {i+1}: {doc}")
