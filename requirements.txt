@@ -1,23 +1,23 @@
-# Streamlit for the web app
+# Web app framework
 streamlit==1.24.0
 
-# LangChain pinned to a version compatible with ChatPromptTemplate
+# LangChain (compatible with ChatPromptTemplate)
 langchain==1.2.10
 
-# Requests for HTTP calls to GROQ API
+# HTTP requests for GROQ API
 requests>=2.31.0
 
-# Optional: For loading environment variables (API keys)
+# Load .env API keys locally if needed
 python-dotenv>=1.2.1
 
-# Vector database / embeddings support (e.g., FAISS)
+# Vector database / embeddings (FAISS)
 faiss-cpu>=1.7.4.post2
 numpy>=1.25.0
 
-# Optional: For PDF / document parsing if needed
+# Document parsing (PDFs, text)
 PyMuPDF>=1.22.5
 pdfplumber>=0.10.0
 
-# Utilities
+# Data handling
 pandas>=2.1.0
 
