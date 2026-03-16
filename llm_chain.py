@@ -44,15 +44,18 @@ def create_qa_chain(vector_store: MyVectorStore):
             "Content-Type": "application/json"
         }
         
+        
         # Groq uses OpenAI-compatible chat completion payload
+        # In llm_chain.py, update the payload
         payload = {
-            "model": "llama-3.3-70b-versatile", # High-speed 2026 production model
-            "messages": [
-                {"role": "user", "content": formatted_prompt}
-            ],
-            "temperature": 0.2
+            "model": "llama-3.3-70b-versatile",
+            "messages": [{"role": "user", "content": formatted_prompt}],
+            "temperature": 0.2,
+            "max_tokens": 1024 
         }
 
+                
+        
         try:
             response = requests.post(GROQ_API_URL, json=payload, headers=headers)
             response.raise_for_status()
